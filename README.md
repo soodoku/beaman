@@ -40,14 +40,14 @@ Baselines in never-reserved villages:
 
 | Outcome | Boys (paper) | Boys (reproduced) | Girls (paper) | Girls (reproduced) |
 |---------|--------------|-------------------|---------------|---------------------|
-| no_housewife | 0.998 | 0.998 | 0.600 | 0.600 |
-| wish_graduate | 0.296 | 0.296 | 0.195 | 0.195 |
-| marry_after18 | 0.980 | 0.980 | 0.660 | 0.660 |
-| wish_pradhan | 0.499 | 0.499 | 0.485 | 0.485 |
+| no_housewife | 0.998 | 0.998 | 0.600 | 0.585 |
+| wish_graduate | 0.296 | 0.290 | 0.195 | 0.190 |
+| marry_after18 | 0.980 | 0.980 | 0.660 | 0.662 |
+| wish_pradhan | 0.499 | 0.504 | 0.485 | 0.487 |
 
 Coefficients match within rounding tolerance.
 
-See `tabs/table2_baselines.md` and `tabs/table2_coefficients.md` for full tables.
+See [tabs/table2_baselines.md](tabs/table2_baselines.md) and [tabs/table2_coefficients.md](tabs/table2_coefficients.md) for full tables.
 
 ### Paper Headline
 
@@ -59,25 +59,25 @@ The paper reports a +0.166 SD gap difference in twice-reserved areas (p < 0.02),
 
 With only 20 GPs in the twice-reserved cell, asymptotic cluster inference is unreliable. Wild cluster bootstrap (Cameron, Gelbach & Miller 2008) provides small-sample-corrected p-values.
 
-See `tabs/robustness_wild_bootstrap.md`.
+See [tabs/robustness_wild_bootstrap.md](tabs/robustness_wild_bootstrap.md).
 
 ### Multiple Testing
 
 Four outcomes tested separately. Bonferroni and Benjamini-Hochberg corrections applied.
 
-See `tabs/robustness_multiple_testing.md`.
+See [tabs/robustness_multiple_testing.md](tabs/robustness_multiple_testing.md).
 
 ### Alternative Clustering
 
 Treatment assigned at GP level. Standard errors compared across clustering at GP, household, and village levels.
 
-See `tabs/robustness_clustering.md`.
+See [tabs/robustness_clustering.md](tabs/robustness_clustering.md).
 
 ### Randomization Inference
 
 GP-level treatment permutation test preserving cell sizes.
 
-See `tabs/robustness_randomization.md`.
+See [tabs/robustness_randomization.md](tabs/robustness_randomization.md).
 
 ## Mechanism Evidence
 
@@ -87,19 +87,19 @@ The paper proposes a "role model" channel: girls observe female pradhans and upd
 
 Women's contact rates with the pradhan across treatment cells.
 
-See `tabs/mechanisms_pradhan_contact.md` and `tabs/mechanisms_recognition.md`.
+See [tabs/mechanisms_pradhan_contact.md](tabs/mechanisms_pradhan_contact.md) and [tabs/mechanisms_recognition.md](tabs/mechanisms_recognition.md).
 
 ### Gram Sabha Participation
 
 Whether women in reserved areas participated more in local governance.
 
-See `tabs/mechanisms_gram_sabha.md`.
+See [tabs/mechanisms_gram_sabha.md](tabs/mechanisms_gram_sabha.md).
 
 ### Political Engagement
 
 Voting and newspaper reading rates.
 
-See `tabs/mechanisms_political.md`.
+See [tabs/mechanisms_political.md](tabs/mechanisms_political.md).
 
 ## Sensitivity Analysis
 
@@ -107,31 +107,31 @@ See `tabs/mechanisms_political.md`.
 
 Drops each of the 20 twice-reserved GPs one at a time. Reports how many LOO specifications yield p > 0.05.
 
-See `tabs/sensitivity_loo.md` and `figs/loo_sensitivity.png`.
+See [tabs/sensitivity_loo.md](tabs/sensitivity_loo.md) and [figs/loo_sensitivity.png](figs/loo_sensitivity.png).
 
 ### Ceiling Effects
 
 Two of four outcomes (no_housewife, marry_after18) have boys near ceiling (>98%). This restricts the scope for boys to improve, mechanically inflating the gap-closure estimate.
 
-See `tabs/sensitivity_ceiling.md`.
+See [tabs/sensitivity_ceiling.md](tabs/sensitivity_ceiling.md).
 
 ### Age Placebo
 
 If the role-model channel operates on impressionable adolescents, adult women over 35 (socialized before the 1993 reservation policy) should show no treatment effects on gender attitudes.
 
-See `tabs/sensitivity_age_placebo.md`.
+See [tabs/sensitivity_age_placebo.md](tabs/sensitivity_age_placebo.md).
 
 ### Unused Gender-Attitude Items
 
 The survey collected 10 gender-attitude questions (E_1 to E_10) not reported in the main paper.
 
-See `tabs/sensitivity_e_items.md`.
+See [tabs/sensitivity_e_items.md](tabs/sensitivity_e_items.md).
 
 ### Time Use
 
 Did treatment change how adolescents allocate their time (school attendance, domestic chores)?
 
-See `tabs/sensitivity_time_use.md`.
+See [tabs/sensitivity_time_use.md](tabs/sensitivity_time_use.md).
 
 ## Running the Code
 
@@ -162,7 +162,7 @@ Output tables are written to `tabs/` as markdown files. Figures are saved to `fi
 
 ## Codebook
 
-Variable definitions and recoding logic are centralized in `scripts/codebook.py`.
+Variable definitions and recoding logic are centralized in [scripts/codebook.py](scripts/codebook.py).
 
 **Adolescent outcomes (Table 2):**
 
