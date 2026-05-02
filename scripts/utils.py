@@ -244,8 +244,12 @@ def load_and_merge(
     trt["once_res"] = ((trt["ever_res"] == 1) & (trt["twice_res"] == 0)).astype(int)
     trt = trt[["AA0_2b", "twice_res", "once_res"]]
 
+    roster_cols = ["serialid", "membercode", "A1_2", "A1_4_year"]
+    for col in ["A1_5", "A1_7", "A1_8"]:
+        if col in roster.columns:
+            roster_cols.append(col)
     teen = teen.merge(
-        roster[["serialid", "membercode", "A1_2", "A1_4_year"]],
+        roster[roster_cols],
         left_on=["hhserialid", "hhmembercode"],
         right_on=["serialid", "membercode"],
         how="left",

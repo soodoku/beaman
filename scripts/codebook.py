@@ -265,7 +265,7 @@ PARENT_OUTCOMES = {
 # Educational outcomes (Table 3)
 # ---------------------------------------------------------------------------
 
-EDU_OUTCOMES = {
+EDU_OUTCOMES_DICT = {
     "attends_school": {
         "source": "A1_5",
         "type": "binary",
@@ -295,6 +295,10 @@ EDU_OUTCOMES = {
         "baseline_girls": 108.231,
     },
 }
+
+EDU_OUTCOMES = ["attends_school", "can_read_write", "grade_completed"]
+
+PARENT_OUTCOMES_LIST = list(PARENT_OUTCOMES.keys())
 
 # ---------------------------------------------------------------------------
 # Time use activities (Table 3)

@@ -30,7 +30,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
-from codebook import FORMULA, OUTCOMES
+from codebook import EDU_OUTCOMES, OUTCOMES
 from utils import (
     fit,
     gap_components,
@@ -71,7 +71,8 @@ def print_table1(adult: pd.DataFrame) -> None:
     nr = women[women["never_res"] == 1]
 
     print("\nPanel A: Never-reserved baselines (paper vs. reproduction)")
-    print(f"{'Outcome':<32}{'Boys (paper)':<15}{'Boys (mine)':<15}{'Girls (paper)':<15}{'Girls (mine)':<15}")
+    print(f"{'Outcome':<32}{'Boys (paper)':<15}{'Boys (mine)':<15}"
+          f"{'Girls (paper)':<15}{'Girls (mine)':<15}")
     print("-" * 92)
 
     for y in PARENT_OUTCOMES:
@@ -145,7 +146,8 @@ def print_table2(teen: pd.DataFrame) -> pd.DataFrame:
     nr = teen[teen["never_res"] == 1]
 
     print("\nPanel A: Never-reserved baselines (paper vs. reproduction)")
-    print(f"{'Outcome':<18}{'Boys (paper)':<15}{'Boys (mine)':<15}{'Girls (paper)':<15}{'Girls (mine)':<15}")
+    print(f"{'Outcome':<18}{'Boys (paper)':<15}{'Boys (mine)':<15}"
+          f"{'Girls (paper)':<15}{'Girls (mine)':<15}")
     print("-" * 78)
 
     baseline_rows = []
@@ -199,7 +201,9 @@ def print_table2(teen: pd.DataFrame) -> pd.DataFrame:
         print()
 
     coef_df = pd.DataFrame(coef_rows)
-    write_table(coef_df, "table2_coefficients", "Table 2: Adolescent Aspirations - Treatment Effects")
+    write_table(
+        coef_df, "table2_coefficients", "Table 2: Adolescent Aspirations - Treatment Effects"
+    )
 
     return teen
 
@@ -246,9 +250,9 @@ def plot_gender_gap(teen: pd.DataFrame) -> None:
 # Table 3: Educational outcomes and time use
 # ---------------------------------------------------------------------------
 
-EDU_OUTCOMES = [
-    ("attends_school", "1 if attends school"),
-    ("can_read_write", "1 if can read and write"),
+EDU_OUTCOMES_LABELS = [
+    ("attends_school", "Attends school"),
+    ("can_read_write", "Can read and write"),
     ("grade_completed", "Grade completed"),
 ]
 
@@ -261,19 +265,29 @@ PAPER_EDU_BASELINES = {
 
 
 def build_edu_outcomes(teen: pd.DataFrame) -> pd.DataFrame:
-    """Build educational outcomes from household roster data."""
+    """Build educational outcomes from household roster data.
+
+    Column mappings from roster:
+    - A1_8: Attending school/SSK/MSK/anganwadi (1=yes, 2=no)
+    - A1_5: Can read and/or write (1=cannot, 2=read only, 3=read and write)
+    - A1_7: Highest education achieved (grade level; 16=NA/not applicable)
+    """
     teen = teen.copy()
 
-    teen["attends_school"] = (teen.get("A1_5", pd.Series()) == 1).astype(int)
-    if "A1_5" in teen.columns:
-        teen.loc[teen["A1_5"].isna(), "attends_school"] = np.nan
+    if "A1_8" in teen.columns:
+        teen["attends_school"] = (teen["A1_8"] == 1).astype(int)
+        teen.loc[teen["A1_8"].isna(), "attends_school"] = np.nan
+    else:
+        teen["attends_school"] = np.nan
 
-    teen["can_read_write"] = (teen.get("A1_6", pd.Series()) == 1).astype(int)
-    if "A1_6" in teen.columns:
-        teen.loc[teen["A1_6"].isna(), "can_read_write"] = np.nan
+    if "A1_5" in teen.columns:
+        teen["can_read_write"] = (teen["A1_5"] == 3).astype(int)
+        teen.loc[teen["A1_5"].isna(), "can_read_write"] = np.nan
+    else:
+        teen["can_read_write"] = np.nan
 
     if "A1_7" in teen.columns:
-        teen["grade_completed"] = teen["A1_7"].replace([99, 999], np.nan)
+        teen["grade_completed"] = teen["A1_7"].replace([16, 99, 999], np.nan)
     else:
         teen["grade_completed"] = np.nan
 
@@ -300,11 +314,12 @@ def print_table3(teen: pd.DataFrame) -> None:
     nr = teen[teen["never_res"] == 1]
 
     print("\nPanel A: Never-reserved baselines (paper vs. reproduction)")
-    print(f"{'Outcome':<25}{'Boys (paper)':<15}{'Boys (mine)':<15}{'Girls (paper)':<15}{'Girls (mine)':<15}")
+    print(f"{'Outcome':<25}{'Boys (paper)':<15}{'Boys (mine)':<15}"
+          f"{'Girls (paper)':<15}{'Girls (mine)':<15}")
     print("-" * 85)
 
     baseline_rows = []
-    for col, label in EDU_OUTCOMES + [("time_domestic", "Time on chores (min)")]:
+    for col, label in EDU_OUTCOMES_LABELS + [("time_domestic", "Time on chores (min)")]:
         if col not in teen.columns or teen[col].isna().all():
             print(f"{label:<25}(not available in merged data)")
             continue
@@ -324,9 +339,53 @@ def print_table3(teen: pd.DataFrame) -> None:
         baseline_df = pd.DataFrame(baseline_rows)
         write_table(baseline_df, "table3_baselines", "Table 3: Educational Outcomes - Baselines")
 
-    print("\nPanel B: Treatment effects (gap-difference specification)")
-    print("Note: Educational outcomes from roster may differ from paper's coding.")
+    print("\nPanel B: Education treatment effects (gap-difference specification)")
+    print("y ~ Once + Twice + Female + Once:Female + Twice:Female")
+    print("Twice:Female = gender gap closure effect")
+    print(f"\n{'Outcome':<25}{'Boys NR':<12}{'Girls NR':<12}{'Gap NR':<12}"
+          f"{'Twice:Fem (SE)':<22}{'p-value':<10}")
+    print("-" * 93)
 
+    edu_rows = []
+    for y in EDU_OUTCOMES:
+        if y not in teen.columns or teen[y].isna().all():
+            print(f"{y:<25}(not available)")
+            continue
+
+        boys_nr = nr[nr["boy"] == 1][y].mean()
+        girls_nr = nr[nr["girl"] == 1][y].mean()
+        gap_nr = girls_nr - boys_nr
+
+        df = teen.dropna(subset=[y]).copy()
+        df["Female"] = df["girl"]
+        df["Once"] = df["once_res"]
+        df["Twice"] = df["twice_res"]
+
+        m = smf.ols(
+            f"{y} ~ Once + Twice + Female + Once:Female + Twice:Female", data=df
+        ).fit(cov_type="cluster", cov_kwds={"groups": df["AA0_2b"]})
+
+        bd = m.params["Twice:Female"]
+        sd = m.bse["Twice:Female"]
+        p = m.pvalues["Twice:Female"]
+        star = "*" if p < 0.05 else ""
+
+        print(f"{y:<25}{boys_nr:<12.3f}{girls_nr:<12.3f}{gap_nr:<+12.3f}"
+              f"{bd:+.3f} ({sd:.3f}){star:<4}{p:.3f}")
+        edu_rows.append({
+            "Outcome": y,
+            "Boys (NR)": f"{boys_nr:.3f}",
+            "Girls (NR)": f"{girls_nr:.3f}",
+            "Gap (NR)": f"{gap_nr:+.3f}",
+            "Twice:Female": f"{bd:+.3f} ({sd:.3f}){star}",
+            "p-value": f"{p:.3f}",
+        })
+
+    if edu_rows:
+        edu_df = pd.DataFrame(edu_rows)
+        write_table(edu_df, "table3_education", "Table 3: Educational Outcomes - Treatment Effects")
+
+    print("\nPanel C: Time use treatment effects")
     activities = [
         ("C1_1", "Went to school yesterday"),
         ("C1_3", "Helped to cook"),
